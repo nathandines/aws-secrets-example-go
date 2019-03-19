@@ -11,6 +11,7 @@ This example shows how an application could access secrets from AWS parameter st
 Run the following to see the example in action:
 
 ```sh
+go mod vendor  # grab dependencies for this example
 go run -mod=vendor main.go
 ```
 
