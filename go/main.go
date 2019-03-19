@@ -10,13 +10,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
+// secret stores secrets retrieved from SSM parameter store
 type secret struct {
-	key     string
-	value   string
-	timeout int
-	expiry  int
+	key     string // SSM parameter store key in which the secret can be found
+	value   string // the secret
+	timeout int    // duration (in seconds) for a secret to be cached before it must be refreshed
+	expiry  int    // UNIX time after which the current secret needs refreshing (now + timeout)
 }
 
+// newSecret will initialise and return a secret
 func newSecret(key string) secret {
 	sec := new(secret)
 	sec.key = key
@@ -25,6 +27,8 @@ func newSecret(key string) secret {
 	return *sec
 }
 
+// getSecret will return, and if necessary retrieve the secret defined in its SSM parameter store
+// key
 func (s *secret) getSecret() (string, error) {
 	if s.isSecretValid() {
 		return s.value, nil
@@ -36,14 +40,20 @@ func (s *secret) getSecret() (string, error) {
 	return s.value, nil
 }
 
+// isSecretValid will check if the current time is beyond the expiry of the secret. Being an int,
+// expiry defaults to "0", so can be used immediately after the secret is created
 func (s *secret) isSecretValid() bool {
 	return int(time.Now().Unix()) <= s.expiry
 }
 
+// resetExpiry will save the expiry date, being the current time, plus the timeout defined when the
+// secret was initialised
 func (s *secret) resetExpiry() {
-	s.expiry = int(time.Now().Unix()) + 10
+	s.expiry = int(time.Now().Unix()) + s.timeout
 }
 
+// refreshSecret will retrieve a secret from SSM parameter store, and reset the expiry for the
+// secret
 func (s *secret) refreshSecret() error {
 	sess := session.Must(
 		session.NewSessionWithOptions(session.Options{
@@ -63,6 +73,7 @@ func (s *secret) refreshSecret() error {
 	return nil
 }
 
+// main runs the program from the CLI
 func main() {
 	sec := newSecret("/app/some-secret")
 	for {
