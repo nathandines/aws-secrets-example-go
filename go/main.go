@@ -77,8 +77,11 @@ func (s *secret) refreshSecret() error {
 func main() {
 	sec := newSecret("/app/some-secret")
 	for {
-		sec.getSecret()
-		fmt.Println(sec.value)
+		secretValue, err := sec.getSecret()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(secretValue)
 		time.Sleep(time.Second)
 	}
 }
