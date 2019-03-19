@@ -11,9 +11,18 @@ import (
 )
 
 type secret struct {
-	refreshTime int
-	key         string
-	value       string
+	key     string
+	value   string
+	timeout int
+	expiry  int
+}
+
+func newSecret(key string) secret {
+	sec := new(secret)
+	sec.key = key
+	// 10 second cache of secret. Should default to a higher value and be configurable in production
+	sec.timeout = 10
+	return *sec
 }
 
 func (s *secret) getSecret() (string, error) {
@@ -28,7 +37,11 @@ func (s *secret) getSecret() (string, error) {
 }
 
 func (s *secret) isSecretValid() bool {
-	return int(time.Now().Unix()) <= s.refreshTime
+	return int(time.Now().Unix()) <= s.expiry
+}
+
+func (s *secret) resetExpiry() {
+	s.expiry = int(time.Now().Unix()) + 10
 }
 
 func (s *secret) refreshSecret() error {
@@ -45,16 +58,13 @@ func (s *secret) refreshSecret() error {
 	if err != nil {
 		return err
 	}
-	// 10 second cache of secret. Should default to a higher value and be configurable in production
-	s.refreshTime = int(time.Now().Unix()) + 10
+	s.resetExpiry()
 	s.value = *response.Parameter.Value
 	return nil
 }
 
 func main() {
-	sec := secret{
-		key: "/app/some-secret",
-	}
+	sec := newSecret("/app/some-secret")
 	for {
 		sec.getSecret()
 		fmt.Println(sec.value)
