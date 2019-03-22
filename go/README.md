@@ -1,10 +1,13 @@
 # AWS Secrets Go Example
 
-This example shows how an application could access secrets from AWS parameter store in Go. It assumes the following:
+This example shows how an application could access secrets from AWS parameter
+store in Go. It assumes the following:
 
 - There is an encrypted secret already located at `/app/some-secret`
 - The secret is encrypted with the default SSM KMS key
 - The secret is in the same AWS region as this app is being run against
+- You've authenticated your terminal to AWS, and have defined the region which
+  you need to access
 
 ## Quick Start
 
@@ -28,3 +31,17 @@ then refreshed. The value was changed in SSM during the demo, and you can see
 this reflected in the application output
 
 ![app demo](demo/demo.gif)
+
+## Environment Variable Secret
+
+Additionally, this example also includes support for using an environment
+variable as a secret. This demonstrates how a secret can be used in a local
+development environment, with minimal dependency on the AWS SSM Parameter Store.
+
+To use this app with an environment variable secret, simply define the
+`SUPER_SECRET_VAR` variable when executing the application, like so:
+
+```sh
+go mod vendor  # grab dependencies for this example
+SUPER_SECRET_VAR=super_secret_value go run -mod=vendor *.go
+```
