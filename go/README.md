@@ -12,7 +12,7 @@ Run the following to see the example in action:
 
 ```sh
 go mod vendor  # grab dependencies for this example
-go run -mod=vendor main.go
+go run -mod=vendor *.go
 ```
 
 Your secret should print on the screen at one second intervals. It will remain
