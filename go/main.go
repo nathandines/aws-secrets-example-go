@@ -19,7 +19,11 @@ func main() {
 	if _, ok := os.LookupEnv(secretVar); ok {
 		sec = newEnvSecret(secretVar)
 	} else {
-		sec = newSsmSecret(secretSsmKey)
+		var err error
+		sec, err = newSsmSecret(secretSsmKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	for {

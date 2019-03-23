@@ -1,13 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
+
+// 10 second cache of secret. Should default to a higher value in production
+const ssmTimeoutDefault int = 10
+const ssmTimeoutEnvVar string = "SSM_SECRET_TIMEOUT"
 
 // secret stores secrets retrieved from SSM parameter store
 type ssmSecret struct {
@@ -18,12 +25,15 @@ type ssmSecret struct {
 }
 
 // newSecret will initialise and return a secret
-func newSsmSecret(key string) *ssmSecret {
-	sec := new(ssmSecret)
+func newSsmSecret(key string) (sec *ssmSecret, err error) {
+	sec = new(ssmSecret)
 	sec.key = key
-	// 10 second cache of secret. Should default to a higher value and be configurable in production
-	sec.timeout = 10
-	return sec
+
+	sec.timeout, err = getSsmTimeout()
+	if err != nil {
+		return nil, err
+	}
+	return
 }
 
 // getSecret will return, and if necessary retrieve the secret defined in its SSM parameter store
@@ -70,4 +80,17 @@ func (s *ssmSecret) refreshSecret() error {
 	s.resetExpiry()
 	s.value = *response.Parameter.Value
 	return nil
+}
+
+// getSsmTimeout looks up the timeout from configuration sources and if not found, will provide a
+// default value
+func getSsmTimeout() (int, error) {
+	if value, ok := os.LookupEnv(ssmTimeoutEnvVar); ok {
+		result, err := strconv.Atoi(value)
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing value of environment variable '%s' as an integer: %s", ssmTimeoutEnvVar, err)
+		}
+		return result, nil
+	}
+	return ssmTimeoutDefault, nil
 }
