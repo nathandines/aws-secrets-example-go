@@ -1,4 +1,4 @@
-package main
+package providers
 
 import (
 	"fmt"
@@ -16,8 +16,8 @@ import (
 const ssmTimeoutDefault int = 10
 const ssmTimeoutEnvVar string = "SSM_SECRET_TIMEOUT"
 
-// secret stores secrets retrieved from SSM parameter store
-type ssmSecret struct {
+// SsmSecret stores secrets retrieved from SSM parameter store
+type SsmSecret struct {
 	key     string // SSM parameter store key in which the secret can be found
 	value   string // the secret
 	timeout int    // duration (in seconds) for a secret to be cached before it must be refreshed
@@ -25,8 +25,8 @@ type ssmSecret struct {
 }
 
 // newSecret will initialise and return a secret
-func newSsmSecret(key string) (sec *ssmSecret, err error) {
-	sec = new(ssmSecret)
+func NewSsmSecret(key string) (sec *SsmSecret, err error) {
+	sec = new(SsmSecret)
 	sec.key = key
 
 	sec.timeout, err = getSsmTimeout()
@@ -36,9 +36,9 @@ func newSsmSecret(key string) (sec *ssmSecret, err error) {
 	return
 }
 
-// getSecret will return, and if necessary retrieve the secret defined in its SSM parameter store
+// GetSecret will return, and if necessary retrieve the secret defined in its SSM parameter store
 // key
-func (s *ssmSecret) getSecret() (string, error) {
+func (s *SsmSecret) GetSecret() (string, error) {
 	if s.isSecretValid() {
 		return s.value, nil
 	}
@@ -51,19 +51,19 @@ func (s *ssmSecret) getSecret() (string, error) {
 
 // isSecretValid will check if the current time is beyond the expiry of the secret. Being an int,
 // expiry defaults to "0", so can be used immediately after the secret is created
-func (s *ssmSecret) isSecretValid() bool {
+func (s *SsmSecret) isSecretValid() bool {
 	return int(time.Now().Unix()) <= s.expiry
 }
 
 // resetExpiry will save the expiry date, being the current time, plus the timeout defined when the
 // secret was initialised
-func (s *ssmSecret) resetExpiry() {
+func (s *SsmSecret) resetExpiry() {
 	s.expiry = int(time.Now().Unix()) + s.timeout
 }
 
 // refreshSecret will retrieve a secret from SSM parameter store, and reset the expiry for the
 // secret
-func (s *ssmSecret) refreshSecret() error {
+func (s *SsmSecret) refreshSecret() error {
 	sess := session.Must(
 		session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable}))

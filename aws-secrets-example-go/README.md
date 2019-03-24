@@ -15,7 +15,7 @@ Run the following to see the example in action:
 
 ```sh
 go mod vendor  # grab dependencies for this example
-go run -mod=vendor *.go
+go run -mod=vendor main.go
 ```
 
 Your secret should print on the screen at one second intervals. It will remain
@@ -43,5 +43,5 @@ To use this app with an environment variable secret, simply define the
 
 ```sh
 go mod vendor  # grab dependencies for this example
-SUPER_SECRET_VAR=super_secret_value go run -mod=vendor *.go
+SUPER_SECRET_VAR=super_secret_value go run -mod=vendor main.go
 ```
