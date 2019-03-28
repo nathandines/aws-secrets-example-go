@@ -9,7 +9,7 @@ config:
 
   # Specify the current working directory path
   # the default is the current working directory path
-  cwd: /Users/nathan/code/github.com/nathandines/aws-secrets-example
+  cwd: /Users/nathan/code/github.com/nathandines/aws-secrets-example-go
 
   # Export additional ENV variables
   env:
@@ -50,7 +50,7 @@ config:
   # Don't forget to add a backgroundColor style with a null as type
   frameBox:
     type: floating
-    title: aws-secrets-example/go
+    title: aws-secrets-example-go
     style:
       border: 0px black solid
       # boxShadow: none
@@ -112,7 +112,7 @@ config:
 # Records, feel free to edit them
 records:
   - delay: 233
-    content: "nathan aws-secrets-example/go \e[36m(master)\e[31m\e(B\e[0m$ "
+    content: "nathan aws-secrets-example-go \e[36m(master)\e[31m\e(B\e[0m$ "
   - delay: 100
     content: g
   - delay: 100
@@ -254,6 +254,6 @@ records:
   - delay: 995
     content: "^Csignal: interrupt\r\n"
   - delay: 92
-    content: "nathan aws-secrets-example/go \e[36m(master)\e[31m\e(B\e[0m$ "
+    content: "nathan aws-secrets-example-go \e[36m(master)\e[31m\e(B\e[0m$ "
   - delay: 191408
     content: "logout\r\n"
